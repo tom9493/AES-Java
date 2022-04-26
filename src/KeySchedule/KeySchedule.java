@@ -21,8 +21,8 @@ public class KeySchedule {
                     keySchedule[row][col] = (char) (keySchedule[row][col-4] ^ keySchedule[row][col-1]);
                 }
             }
-            //System.out.println("Round: " + round);
-            //printKeyScheduleSoFar(keySchedule, round);
+//            System.out.println("Round: " + round);
+//            printKeyScheduleSoFar(keySchedule, round);
         }
         return keySchedule;
     }

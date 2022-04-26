@@ -34,48 +34,66 @@ public class AES {
         keySchedule = ks.getKeySchedule(new State(cipherKey, Nb).getMatrix(), Nr);
     }
 
-    public char[] encrypt(char[] bytes, int verbose) {
+    public char[] encrypt(char[] bytes, boolean verbose) {
         state = new State(bytes, Nb);
         SubBytes subBytes = new SubBytes();
         ShiftRows shiftRows = new ShiftRows();
         MixColumns mixColumns = new MixColumns();
         AddRoundKey addRoundKey = new AddRoundKey();
 
-        addRoundKey.addRoundKey(state.getMatrix(), keySchedule, 0);
+        addRoundKey.addRoundKey(state.getMatrix(), keySchedule, 0, verbose, 0);
 
         for (int i = 1; i < Nr; ++i) {
+            if (verbose) { System.out.print("round[" + i + "].start\t\t"); printBytes(); }
             subBytes.subBytes(state.getMatrix());
+            if (verbose) { System.out.print("round[" + i + "].s_box\t\t"); printBytes(); }
             shiftRows.shiftRows(state.getMatrix());
+            if (verbose) { System.out.print("round[" + i + "].s_row\t\t"); printBytes(); }
             mixColumns.mixColumns(state.getMatrix());
-            addRoundKey.addRoundKey(state.getMatrix(), keySchedule, i);
+            if (verbose) { System.out.print("round[" + i + "].m_col\t\t"); printBytes(); }
+            addRoundKey.addRoundKey(state.getMatrix(), keySchedule, i, verbose, 0);
         }
 
+        if (verbose) { System.out.print("round[" + Nr + "].start\t\t"); printBytes(); }
         subBytes.subBytes(state.getMatrix());
+        if (verbose) { System.out.print("round[" + Nr + "].s_box\t\t"); printBytes(); }
         shiftRows.shiftRows(state.getMatrix());
-        addRoundKey.addRoundKey(state.getMatrix(), keySchedule, Nr);
+        if (verbose) { System.out.print("round[" + Nr + "].s_row\t\t"); printBytes(); }
+        addRoundKey.addRoundKey(state.getMatrix(), keySchedule, Nr, verbose, 0);
+        if (verbose) { System.out.print("round[" + Nr + "].output\t"); printBytes(); }
 
         return state.stateToArray();
     }
 
-    public char[] decrypt(char[] bytes, int verbose) {
+    public char[] decrypt(char[] bytes, boolean verbose) {
         state = new State(bytes, Nb);
         SubBytes subBytes = new SubBytes();
         ShiftRows shiftRows = new ShiftRows();
         MixColumns mixColumns = new MixColumns();
         AddRoundKey addRoundKey = new AddRoundKey();
+        int j = 1;
 
-        addRoundKey.addRoundKey(state.getMatrix(), keySchedule, Nr);
-        shiftRows.invShiftRows(state.getMatrix());
-        subBytes.invSubBytes(state.getMatrix());
+        addRoundKey.addRoundKey(state.getMatrix(), keySchedule, Nr, verbose, 1);
 
         for (int i = Nr-1; i > 0; --i) {
-            addRoundKey.addRoundKey(state.getMatrix(), keySchedule, i);
-            mixColumns.invMixColumns(state.getMatrix());
+            if (verbose) { System.out.print("round[" + j + "].start\t\t"); printBytes(); }
             shiftRows.invShiftRows(state.getMatrix());
+            if (verbose) { System.out.print("round[" + j + "].is_row\t\t"); printBytes(); }
             subBytes.invSubBytes(state.getMatrix());
+            if (verbose) { System.out.print("round[" + j + "].is_box\t\t"); printBytes(); }
+            addRoundKey.addRoundKey(state.getMatrix(), keySchedule, i, verbose, 1);
+            if (verbose) { System.out.print("round[" + j + "].ik_add\t\t"); printBytes(); }
+            mixColumns.invMixColumns(state.getMatrix());
+            ++j;
         }
 
-        addRoundKey.addRoundKey(state.getMatrix(), keySchedule, 0);
+        if (verbose) { System.out.print("round[" + Nr + "].start\t\t"); printBytes(); }
+        shiftRows.invShiftRows(state.getMatrix());
+        if (verbose) { System.out.print("round[" + Nr + "].is_row\t"); printBytes(); }
+        subBytes.invSubBytes(state.getMatrix());
+        if (verbose) { System.out.print("round[" + j + "].is_box\t"); printBytes(); }
+        addRoundKey.addRoundKey(state.getMatrix(), keySchedule, 0, verbose , 1);
+        if (verbose) { System.out.print("round[" + Nr + "].output\t"); printBytes(); }
 
         return state.stateToArray();
     }
@@ -93,9 +111,13 @@ public class AES {
         System.out.println();
     }
 
-    public static void printBytes(char[] bytes) {
-        for (int i = 0; i < bytes.length; ++i) {
-            System.out.print(Integer.toHexString(bytes[i]) + " ");
+    public void printBytes() {
+        char[][] matrix = state.getMatrix();
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (matrix[j][i] <= 0x0f) { System.out.print("0"); }
+                System.out.print(Integer.toHexString(matrix[j][i]));
+            }
         }
         System.out.println();
     }
