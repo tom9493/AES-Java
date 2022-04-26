@@ -2,23 +2,31 @@ package KeySchedule;
 
 public class KeySchedule {
 
-    public char[][] getKeySchedule(char[][] key, int Nr) {
+    public char[][] getKeySchedule(char[][] key, int Nr, int Nk) {
         RotWord rw = new RotWord();
         SubWord sw = new SubWord();
         Rcon rc = new Rcon(Nr);
 
         char[][] keySchedule = new char[4][4*(Nr+1)];
-        insertKeyIntoSchedule(key, keySchedule);
+        insertKeyIntoSchedule(key, keySchedule, Nk);
 
-        for (int round = 1; round < Nr+1; ++round) {
-            char[][] word = extractWord(keySchedule, (round*4)-1); // Initially gets column 3 from cipher key (4th one)
-            rw.rotateWord(word);                                       // Manipulates word
-            sw.subWord(word);
-            rc.applyRcon(word, round);
-            exclusiveOrWithWords(word, keySchedule, (round*4) - 4);
-            for (int col = (round*4)+1; col < (round*4)+4; ++col) {    // for each column, go down rows and ^ with word
+        for (int col = Nk; col < 4*(Nr+1); ++col) {
+            if (col % Nk == 0) {
+                char[][] word = extractWord(keySchedule, col - 1);      // Initially gets column 3 from cipher key (4th one)
+                rw.rotateWord(word);                                       // Manipulates word
+                sw.subWord(word);
+                rc.applyRcon(word, col/Nk);
+                exclusiveOrWithWord(word, keySchedule, col - Nk, Nk);
+            }
+            else {
                 for (int row = 0; row < 4; ++row) {
-                    keySchedule[row][col] = (char) (keySchedule[row][col-4] ^ keySchedule[row][col-1]);
+                    if (Nk > 6 && col % Nk == 4) {
+                        char[][] word = extractWord(keySchedule, col - 1);
+                        sw.subWord(word);
+                        keySchedule[row][col] = (char) (keySchedule[row][col - Nk] ^ word[row][0]);
+                    } else {
+                        keySchedule[row][col] = (char) (keySchedule[row][col - Nk] ^ keySchedule[row][col - 1]);
+                    }
                 }
             }
 //            System.out.println("Round: " + round);
@@ -27,9 +35,11 @@ public class KeySchedule {
         return keySchedule;
     }
 
-    public void insertKeyIntoSchedule(char[][] key, char[][] keySchedule) {
-        for (int i = 0; i < 4; ++i) {
-            System.arraycopy(key[i], 0, keySchedule[i], 0, 4);
+    public void insertKeyIntoSchedule(char[][] key, char[][] keySchedule, int Nk) {
+        for (int i = 0; i < Nk; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                keySchedule[j][i] = key[j][i];
+            }
         }
     }
 
@@ -39,9 +49,9 @@ public class KeySchedule {
         return word;
     }
 
-    public void exclusiveOrWithWords(char[][] word, char[][] schedule, int col) {
+    public void exclusiveOrWithWord(char[][] word, char[][] schedule, int col, int Nk) {
         for (int i = 0; i < 4; ++i) {
-            schedule[i][col+4] = (char) (schedule[i][col] ^ word[i][0]);
+            schedule[i][col+Nk] = (char) (schedule[i][col] ^ word[i][0]);
         }
     }
 

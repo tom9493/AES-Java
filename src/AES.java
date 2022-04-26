@@ -31,7 +31,7 @@ public class AES {
         }
 
         KeySchedule ks = new KeySchedule();
-        keySchedule = ks.getKeySchedule(new State(cipherKey, Nb).getMatrix(), Nr);
+        keySchedule = ks.getKeySchedule(new State(cipherKey, Nk).getMatrix(), Nr, Nk);
     }
 
     public char[] encrypt(char[] bytes, boolean verbose) {

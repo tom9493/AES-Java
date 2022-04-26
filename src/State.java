@@ -8,13 +8,11 @@ public class State {
                                 {(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00} };
     }
 
-    public State(char[] bytes, int Nb) {
-       // System.out.println("bytes in state constructor: ");
-        matrix = new char[4][Nb];
+    public State(char[] bytes, int Nk) {
+        matrix = new char[4][Nk];
         for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < Nb; ++j) {
+            for (int j = 0; j < Nk; ++j) {
                 matrix[i][j] = bytes[i + (4*j)];
-                //System.out.print(Integer.toHexString(bytes[i+(4*j)]) + " ");
             }
         }
         System.out.println();
