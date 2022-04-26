@@ -60,7 +60,7 @@ public class AES {
         shiftRows.shiftRows(state.getMatrix());
         if (verbose) { System.out.print("round[" + Nr + "].s_row\t\t"); printBytes(); }
         addRoundKey.addRoundKey(state.getMatrix(), keySchedule, Nr, verbose, 0);
-        if (verbose) { System.out.print("round[" + Nr + "].output\t"); printBytes(); }
+        System.out.print("round[" + Nr + "].output\t"); printBytes();
 
         return state.stateToArray();
     }
@@ -93,7 +93,7 @@ public class AES {
         subBytes.invSubBytes(state.getMatrix());
         if (verbose) { System.out.print("round[" + j + "].is_box\t"); printBytes(); }
         addRoundKey.addRoundKey(state.getMatrix(), keySchedule, 0, verbose , 1);
-        if (verbose) { System.out.print("round[" + Nr + "].output\t"); printBytes(); }
+        System.out.print("round[" + Nr + "].output\t"); printBytes();
 
         return state.stateToArray();
     }

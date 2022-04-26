@@ -29,8 +29,6 @@ public class KeySchedule {
                     }
                 }
             }
-//            System.out.println("Round: " + round);
-//            printKeyScheduleSoFar(keySchedule, round);
         }
         return keySchedule;
     }
