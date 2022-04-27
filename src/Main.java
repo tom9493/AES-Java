@@ -75,28 +75,20 @@ public class Main {
         }
     }
 
-    public static char[] hex2CharArray(String hex) {
-        if (hex == null) {
-            return null;
-        }
-        int length = hex.length();
-        if ((1 & length) != 0) {
-            throw new IllegalArgumentException("'" + hex + "' has odd length!");
-        }
+    public static char[] hex2CharArray(String s) {
+        if (s == null) { return null; }
+        int length = s.length();
+        if ((1 & length) != 0) { System.out.println("'" + s + "' has odd length. Exiting..."); exit(1); }
         length /= 2;
         char[] result = new char[length];
-        for (int indexDest = 0, indexSrc = 0; indexDest < length; ++indexDest) {
-            int digit = Character.digit(hex.charAt(indexSrc), 16);
-            if (digit < 0) {
-                throw new IllegalArgumentException("'" + hex + "' digit " + indexSrc + " is not hexadecimal!");
-            }
-            result[indexDest] = (char) (digit << 4);
+        for (int i = 0, indexSrc = 0; i < length; ++i) {
+            int digit = Character.digit(s.charAt(indexSrc), 16);
+            if (digit < 0) { System.out.println("'" + s + "' digit " + indexSrc + " is not sadecimal. Exiting..."); exit(1); }
+            result[i] = (char) (digit << 4);
             ++indexSrc;
-            digit = Character.digit(hex.charAt(indexSrc), 16);
-            if (digit < 0) {
-                throw new IllegalArgumentException("'" + hex + "' digit " + indexSrc + " is not hexadecimal!");
-            }
-            result[indexDest] |= (char) digit;
+            digit = Character.digit(s.charAt(indexSrc), 16);
+            if (digit < 0) { System.out.println("'" + s + "' digit " + indexSrc + " is not sadecimal. Exiting..."); exit(1); }
+            result[i] |= (char) digit;
             ++indexSrc;
         }
         return result;
